@@ -25,7 +25,6 @@ Copy files using cp <source> <destination>.
 ```bash
 git clone https://github.com/blaze-d83/file-manager-py
 cd terminal-file-manager-python
-Running the File Manager
 ```
 
 ### Run the Python script:
