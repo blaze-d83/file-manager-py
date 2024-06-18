@@ -1,42 +1,30 @@
-# Terminal File Manager (Python)
+# File Manager App
 
-## Overview
-This terminal file manager is designed to provide a lightweight yet functional interface for navigating and managing files and directories directly from the command line. Inspired by Vim keybindings, it offers intuitive controls (j, k, l, h) for navigation and basic file operations (cp <source> <destination>).
+A simple file manager application built with [Textual](https://github.com/Textualize/textual).
 
-## Features
+## Setup
 
-### Directory Navigation:
-Move in (l) and out (h) through directories.
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/your-username/file-manager.git
+    cd file-manager
+    ```
 
-### File Listing:
-View files and directories in the current directory.
+2. **Create a virtual environment and activate it:**
+    ```sh
+    python -m venv venv
+    venv\Scripts\activate  # On Windows
+    # source venv/bin/activate  # On macOS/Linux
+    ```
 
-### Cursor Navigation:
-Use j and k to navigate through the list.
+3. **Install the dependencies:**
+    ```sh
+    pip install -r requirements.txt
+    ```
 
-### File Operations:
-Copy files using cp <source> <destination>.
+## Usage
 
+Run the application using:
+```sh
+python main.py
 
-## Installation
-
-### Clone the repository:
-
-```bash
-git clone https://github.com/blaze-d83/file-manager-py
-cd terminal-file-manager-python
-```
-
-### Run the Python script:
-
-```bash
-python file_manager.py
-```
-
-## Navigating and Operating
-
-Use j and k to move the cursor up and down the file list.
-Use l to enter a directory (navigate into the selected directory).
-Use h to go up one directory level (navigate back).
-Use cp <source> <destination> to copy files.
-Type exit to quit the file manager.
