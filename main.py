@@ -1,79 +1,51 @@
 import os
-import shutil
+from textual.app import App
+from textual.widgets import ListView, ListItem, Label
+from textual.events import Key
 
-current_dir = os.getcwd()
-cursor_index = 0
+from navigation import get_directory_contents, navigate_up, navigate_down
 
+class FileManagerApp(App):
+    def __init__(self, path="."):
+        super().__init__()
+        self.path = path
 
-def list_files_and_dirs(path):
-    with os.scandir(path) as entries:
-        files_and_dirs = [entry.name for entry in entries]
-    return files_and_dirs
+    def compose(self):
+        yield Label(f"Current Directory: {self.path}", id="header")
+        yield ListView(id="file-list")
 
+    def on_mount(self):
+        self.update_file_list()
 
-def change_dir(new_path):
-    global current_dir
-    try:
-        os.chdir(new_path)
-        current_dir = os.getcwd()
-    except FileNotFoundError:
-        print("Directory not found.")
+    def update_file_list(self):
+        file_list = self.query_one("#file-list", ListView)
+        file_list.clear()
 
+        contents = get_directory_contents(self.path)
+        for filename in contents:
+            file_list.append(ListItem(Label(filename)))
 
-def copy_file(source, destination):
-    try:
-        shutil.copy(source, destination)
-        print("File copied successfully.")
-    except FileNotFoundError:
-        print("File not found.")
+    def on_key(self, event: Key):
+        if event.key == "enter":
+            self.navigate_down()
+        elif event.key == "b":
+            self.navigate_up()
 
+    def navigate_down(self):
+        file_list = self.query_one("#file-list", ListView)
+        selected_item = file_list.highlighted_child
 
-def navigation_cursor(key):
-    global cursor_index
-    files_and_dirs = list_files_and_dirs(current_dir)
-    max_index = len(files_and_dirs) - 1
+        if selected_item:
+            selected_label = selected_item.query_one(Label)
+            self.path = navigate_down(self.path, str(selected_label.renderable))
+            self.update_file_list()
+            self.query_one("#header", Label).update(f"Current Directory: {self.path}")
 
-    if key == "j":
-        cursor_index = min(cursor_index + 1, max_index)
-    elif key == "k":
-        cursor_index = min(cursor_index - 1, 0)
-    elif key == "l":
-        if os.path.isdir(files_and_dirs[cursor_index]):
-            change_dir(os.path.join(current_dir, files_and_dirs[cursor_index]))
-            cursor_index = 0
-    elif key == "h":
-        if current_dir != "/":
-            parent_dir = os.path.dirname(current_dir)
-            change_dir(parent_dir)
-            cursor_index = 0
+    def navigate_up(self):
+        self.path = navigate_up(self.path)
+        self.update_file_list()
+        self.query_one("#header", Label).update(f"Current Directory: {self.path}")
 
+if __name__ == "__main__":
+    FileManagerApp().run()
 
-while True:
-    files_and_dirs = list_files_and_dirs(current_dir)
-    max_index = len(files_and_dirs) - 1
-    print(f"Current Directory: {current_dir}")
-
-    for i, item in enumerate(files_and_dirs):
-        if i == cursor_index:
-            print(f"> {item}")
-        else:
-            print(f"  {item}")
-
-    command = input("Enter ('j' , 'k', 'l', 'h', 'exit'):").strip()
-
-    if command == "j":
-        navigation_cursor("j")
-    elif command == "k":
-        navigation_cursor("k")
-    elif command == "l":
-        navigation_cursor("l")
-    elif command == "h":
-        navigation_cursor("h")
-    elif command.startswith("cp"):
-        parts = command.split()
-        if len(parts) == 3:
-            copy_file(parts[1], parts[2])
-    elif command == "exit":
-        break
-    else:
-        print("Invalid command.")
